@@ -1,0 +1,4 @@
+#! /bin/bash
+
+cd ../Docker || exit
+docker build . -t mutant/vssh

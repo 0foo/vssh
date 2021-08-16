@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+#! /bin/bash
+
+docker run -v /Users/$USER/.ssh:/data --rm -it mutant/vssh
+
+
