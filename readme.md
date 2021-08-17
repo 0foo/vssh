@@ -53,3 +53,14 @@
 
 
 ```
+
+
+# Notes
+* All of the keys and config are stored in .ssh directory on the local machine under the folder of the machine name
+
+
+
+# to do
+* cli autocomplete
+* vssh backup/restore
+    * put all of the vpass managed folders and optionally ALL keys in .ssh into an encrypted compressed file
