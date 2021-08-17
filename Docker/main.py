@@ -168,6 +168,6 @@ if command == 'run':
         else:
             port = 22
         
-        command = f'ssh -o StrictHostKeyChecking=no -i {ssh_connection_dir}/key -p {port}{user}@{host}'
+        command = f'ssh -o StrictHostKeyChecking=no -i {ssh_connection_dir}/key -p {port} {user}@{host}'
         print(command)
         os.system(command)
