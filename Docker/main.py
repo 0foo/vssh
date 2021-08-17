@@ -33,6 +33,9 @@ else:
     ssh_connection_name = vssh_data["ssh_connection_name"]
     ssh_connection_dir=os.path.join(vssh_dir, ssh_connection_name)
 
+if ssh_connection_dir is not None and not os.path.exists(ssh_connection_dir):
+    print(f"Please input a valid connection. {ssh_connection_name} does not exist.")
+    exit()
 
 if command == 'list':
     print("\n")
