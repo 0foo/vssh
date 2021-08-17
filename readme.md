@@ -30,10 +30,10 @@
         vssh list
             vssh managed ssh connections
             --------------
-            do-droplet-1 : user=ubuntu host=127.0.0.1 port=22
-            jolly-haibt : user=root host=137.229.3.12 port=22
-            optimistic-wozniak : user=root host=127.0.0.1 port=22
-            aws-ec2-3kdf9 : user=ubuntu host=122.2.34.15 port=22
+            do-droplet-1 : user=ubuntu host=127.0.0.1 port=22 note="test me out"
+            jolly-haibt : user=root host=137.229.3.12 port=22 note="my DO droplet"
+            optimistic-wozniak : user=root host=127.0.0.1 port=22 note="local testing"
+            aws-ec2-3kdf9 : user=ubuntu host=122.2.34.15 port=22 note="work ec2 instance"
 
         vssh delete <connection name>
             Deleted elastic-hodgkin
