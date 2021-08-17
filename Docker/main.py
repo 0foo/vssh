@@ -25,6 +25,7 @@ ssh_connection_name = None
 ssh_connection_dir = None
 if vssh_data["ssh_connection_name"] is None:
     if command not in ['list', 'create','edit', 'delete']:
+        ssh_connection_name = command
         ssh_connection_dir=os.path.join(vssh_dir, command)
         command = 'run'
     else:
@@ -147,7 +148,7 @@ if command == 'delete':
 
 if command == 'run':
     if ssh_connection_name is None:
-            print("Please input a connection to connect to.")
+            print("Please input a valid connection.")
             exit()
     
     if not os.path.exists(ssh_connection_dir):
