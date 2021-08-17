@@ -15,7 +15,7 @@
 * To use:
 
 ```
-    vpass <command> <machine> [options]
+    vssh <command> <machine> [options]
 
     vssh create
         Creating /data/optimistic-haibt
