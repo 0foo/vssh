@@ -26,10 +26,30 @@ configs = {
 if command is None and ssh_connection_name is None:
     out = """
         vssh <command> <connection> [options]
+
         vssh create [optional connection name]
+            Creating optimistic-haibt
+            Key Generated: key and key.pub
+            SSH PUBLIC KEY
+            --------------------
+            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCk5XpQuJc.....
+
         vssh list
+            vssh managed ssh connections
+            --------------
+            do-droplet-1 : user=ubuntu host=127.0.0.1 port=22
+            jolly-haibt : user=root host=137.229.3.12 port=22
+            optimistic-wozniak : user=root host=127.0.0.1 port=22
+            aws-ec2-3kdf9 : user=ubuntu host=122.2.34.15 port=22
+
         vssh delete <connection name>
+            Deleted elastic-hodgkin
+
         vssh edit <connection> [-u user -h host -p port]
+
+        vssh <connection>
+            Last login: Mon Aug 16 23:56:04 2021 from 174.203.65.152
+            root@ubuntu-s-2vcpu-4gb-amd-sfo3-01:~#
     
     """
     print(out)
@@ -60,7 +80,9 @@ if command == 'list':
     for dir in dirs:
         new_dir = os.path.join(vssh_dir, dir)
         if os.path.isdir(new_dir):
-            print(dir)
+            with open(f'{new_dir}/vpass-config.yaml', 'r') as yamlfile:
+                data = yaml.load(yamlfile, Loader=yaml.SafeLoader)
+            print(dir,":", "user=" + data["user"], "host=" + data["host"], "port=" + str(data["port"]))
     print("\n")
     exit()
 
@@ -74,8 +96,8 @@ if command == 'create':
         configs["host"] = "127.0.0.1"
 
     if ssh_connection_name is None:
-        dir_name = random_names.run()
-        new_ssh_connection_dir = os.path.join(vssh_dir, dir_name)
+        ssh_connection_name = random_names.run()
+        new_ssh_connection_dir = os.path.join(vssh_dir, ssh_connection_name)
     else:
         ssh_connection_name = ssh_connection_name
         new_ssh_connection_dir = os.path.join(vssh_dir, ssh_connection_name)
@@ -83,7 +105,7 @@ if command == 'create':
     new_ssh_connection_dir =  new_ssh_connection_dir
 
     if not os.path.exists(new_ssh_connection_dir):
-        print(f"Creating {new_ssh_connection_dir}")
+        print(f"Creating {ssh_connection_name}")
         os.makedirs(new_ssh_connection_dir)
 
     # create config file
