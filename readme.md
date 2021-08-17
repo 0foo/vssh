@@ -5,6 +5,9 @@
 * docker installed and working
     * verify by running `docker` on the command line 
 
+* python on the system path 
+    * verify by running /usr/bin/env python3
+
 # Setup
 1. clone the repo 
 2. add bin directory to path
