@@ -103,8 +103,8 @@ if command == 'edit':
     exit()
 
 if command == 'delete':
-    print(f"Deleting {ssh_connection}")
-    shutil.rmtree(ssh_connection_name)
+    print(f"Deleted {ssh_connection_name}")
+    shutil.rmtree(ssh_connection_dir)
     exit()
 
 if ssh_connection_name is None:
