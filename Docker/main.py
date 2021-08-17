@@ -1,60 +1,14 @@
-import os, argparse, shutil, yaml, shutil
+import os, pickle, base64, codecs
+from pathlib import Path
+import os, shutil, yaml, shutil
 from yaml.loader import SafeLoader
 import random_names
-from pathlib import Path
 
-# pars args
-parser = argparse.ArgumentParser(add_help=False)
-parser.add_argument("command", type=str, nargs='?', default=None)
-parser.add_argument("ssh_connection_name", type=str, nargs='?', default=None)
-parser.add_argument("-p", "-port", type=int, default=None)
-parser.add_argument("-u", "-user", type=str, default=None)
-parser.add_argument("-h", "-host", type=str, default=None)
+vssh_data = os.getenv('VSSHDATA')
+vssh_data = pickle.loads(codecs.decode(vssh_data.encode(), "base64"))
 
-args = parser.parse_args()
-
-# arguments
-command=args.command
-ssh_connection_name=args.ssh_connection_name
-
-configs = {
-    'user':args.u,
-    'port':args.p,
-    'host':args.h
-}
-
-if command is None and ssh_connection_name is None:
-    out = """
-        vssh <command> <connection> [options]
-
-        vssh create [optional connection name]
-            Creating optimistic-haibt
-            Key Generated: key and key.pub
-            SSH PUBLIC KEY
-            --------------------
-            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCk5XpQuJc.....
-
-        vssh list
-            vssh managed ssh connections
-            --------------
-            do-droplet-1 : user=ubuntu host=127.0.0.1 port=22
-            jolly-haibt : user=root host=137.229.3.12 port=22
-            optimistic-wozniak : user=root host=127.0.0.1 port=22
-            aws-ec2-3kdf9 : user=ubuntu host=122.2.34.15 port=22
-
-        vssh delete <connection name>
-            Deleted elastic-hodgkin
-
-        vssh edit <connection> [-u user -h host -p port]
-
-        vssh <connection>
-            Last login: Mon Aug 16 23:56:04 2021 from 174.203.65.152
-            root@ubuntu-s-2vcpu-4gb-amd-sfo3-01:~#
-    
-    """
-    print(out)
-    exit()
-
+command = vssh_data["command"]
+configs = vssh_data["configs"]
 
 # directories
 home_dir = str(Path.home())
@@ -66,9 +20,17 @@ vssh_dir = os.path.join(ssh_dir, 'vssh')
 if not os.path.exists(vssh_dir):
     os.makedirs(vssh_dir)
 
-
-
-if ssh_connection_name is not None:
+# set default ssh_connetion_dir
+ssh_connection_name = None
+ssh_connection_dir = None
+if vssh_data["ssh_connection_name"] is None:
+    if command not in ['list', 'create','edit', 'delete']:
+        ssh_connection_dir=os.path.join(vssh_dir, command)
+        command = 'run'
+    else:
+        pass
+else:
+    ssh_connection_name = vssh_data["ssh_connection_name"]
     ssh_connection_dir=os.path.join(vssh_dir, ssh_connection_name)
 
 
@@ -82,11 +44,22 @@ if command == 'list':
         if os.path.isdir(new_dir):
             with open(f'{new_dir}/vpass-config.yaml', 'r') as yamlfile:
                 data = yaml.load(yamlfile, Loader=yaml.SafeLoader)
-            print(dir,":", "user=" + data["user"], "host=" + data["host"], "port=" + str(data["port"]))
+
+                req_fields = ['host', 'port', 'note', 'user']
+
+                for item in req_fields:
+                    if item not in data:
+                        data[item] = "null"
+
+                for key, value in data.items():
+                    if value is None:
+                        data[key] = "null"
+
+            print(dir,":", "user=" + data["user"], "host=" + data["host"], "port=" + str(data["port"]) ,"note=\"" + data["note"] + "\"")
     print("\n")
     exit()
 
-        
+
 if command == 'create':
     if configs["user"] is None:
         configs["user"] = "root"
@@ -99,10 +72,7 @@ if command == 'create':
         ssh_connection_name = random_names.run()
         new_ssh_connection_dir = os.path.join(vssh_dir, ssh_connection_name)
     else:
-        ssh_connection_name = ssh_connection_name
         new_ssh_connection_dir = os.path.join(vssh_dir, ssh_connection_name)
-
-    new_ssh_connection_dir =  new_ssh_connection_dir
 
     if not os.path.exists(new_ssh_connection_dir):
         print(f"Creating {ssh_connection_name}")
@@ -123,6 +93,11 @@ if command == 'create':
     exit()
 
 if command == 'edit':
+    if ssh_connection_dir is None or not os.path.exists(ssh_connection_dir):
+        print("Please input a valid connection to edit.")
+        exit()
+    
+
     # create config file
     with open(f'{ssh_connection_dir}/vpass-config.yaml', 'r') as yamlfile:
         data = yaml.load(yamlfile, Loader=yaml.SafeLoader)
@@ -147,20 +122,36 @@ if command == 'edit':
         elif "port" in data:
             out["port"] = data["port"]
         
+        if configs["note"] is not None:
+            out["note"] = configs["note"]
+        elif "note" in data:
+            out["note"] = data["note"]
+        
     with open(f'{ssh_connection_dir}/vpass-config.yaml', 'w') as yamlfile:
         data = yaml.dump(out, yamlfile)
+
+    print(f"Connection {ssh_connection_name} edited successfully.")
 
     exit()
 
 if command == 'delete':
+    if ssh_connection_name is None:
+        print("Please input a connection to delete.")
+        exit()
     print(f"Deleted {ssh_connection_name}")
     shutil.rmtree(ssh_connection_dir)
     exit()
 
-if ssh_connection_name is None:
-    ssh_connection_name = args.command
-    ssh_connection_dir=os.path.join(vssh_dir, ssh_connection_name)
-    # create config file
+if command == 'run':
+    if ssh_connection_name is None:
+            print("Please input a connection to connect to.")
+            exit()
+    
+    if not os.path.exists(ssh_connection_dir):
+        print("Please input a valid connection.")
+        exit()
+
+    # load config file
     with open(f'{ssh_connection_dir}/vpass-config.yaml', 'r') as yamlfile:
         data = yaml.load(yamlfile, Loader=yaml.SafeLoader)
         print(data)
@@ -173,6 +164,6 @@ if ssh_connection_name is None:
         else:
             port = 22
         
-        command = f'ssh -o StrictHostKeyChecking=no -i {ssh_connection_dir}/key {user}@{host}'
+        command = f'ssh -o StrictHostKeyChecking=no -i {ssh_connection_dir}/key -p {port}{user}@{host}'
         print(command)
         os.system(command)

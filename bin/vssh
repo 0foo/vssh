@@ -1,5 +1,63 @@
-#! /bin/bash
-CMD="python3 main.py $*"
-docker run -v /Users/$USER/.ssh:/data --rm -it mutant/vssh /bin/bash -c "$CMD"
+#!/usr/bin/env python3
+import argparse, pickle, base64, os, codecs
 
 
+# pars args
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument("command", type=str, nargs='?', default=None)
+parser.add_argument("ssh_connection_name", type=str, nargs='?', default=None)
+parser.add_argument("-p", "-port", type=int, default=None)
+parser.add_argument("-u", "-user", type=str, default=None)
+parser.add_argument("-h", "-host", type=str, default=None)
+parser.add_argument("-n", "-note", type=str, default=None)
+
+args = parser.parse_args()
+
+if args.command == 'help' or args.command is None:
+    out = """
+        vssh <command> <connection> [options]
+
+        vssh create [optional connection name]
+            Creating optimistic-haibt
+            Key Generated: key and key.pub
+            SSH PUBLIC KEY
+            --------------------
+            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCk5XpQuJc.....
+
+        vssh list
+            vssh managed ssh connections
+            --------------
+            do-droplet-1 : user=ubuntu host=127.0.0.1 port=22
+            jolly-haibt : user=root host=137.229.3.12 port=22
+            optimistic-wozniak : user=root host=127.0.0.1 port=22
+            aws-ec2-3kdf9 : user=ubuntu host=122.2.34.15 port=22
+
+        vssh delete <connection name>
+            Deleted elastic-hodgkin
+
+        vssh edit <connection> [-u user -h host -p port]
+
+        vssh <connection>
+            Last login: Mon Aug 16 23:56:04 2021 from 174.203.65.152
+            root@ubuntu-s-2vcpu-4gb-amd-sfo3-01:~#
+    
+    """
+    print(out)
+    exit()
+
+# arguments
+
+out = { 
+    "command": args.command,
+    "ssh_connection_name": args.ssh_connection_name,
+    "configs" : {
+        'user':args.u,
+        'port':args.p,
+        'host':args.h,
+        'note':args.n
+    }
+}
+
+out = codecs.encode(pickle.dumps(out), "base64").decode()
+run_command = f'docker run -e VSSHDATA="{out}" -v /Users/$USER/.ssh:/data --rm -it mutant/vssh /bin/bash -c "python3 main.py"'
+os.system(run_command)
