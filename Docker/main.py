@@ -23,6 +23,18 @@ configs = {
     'host':args.h
 }
 
+if command is None and ssh_connection_name is None:
+    out = """
+        vssh <command> <connection> [options]
+        vssh create [optional connection name]
+        vssh list
+        vssh delete <connection name>
+        vssh edit <connection> [-u user -h host -p port]
+    
+    """
+    print(out)
+    exit()
+
 
 # directories
 home_dir = str(Path.home())
@@ -30,13 +42,29 @@ app_root_dir = str(Path.cwd())
 app_home_dir = os.path.join(home_dir, 'vssh')
 system_root_dir = os.path.abspath(os.sep)
 ssh_dir = os.path.join(system_root_dir, 'data')
+vssh_dir = os.path.join(ssh_dir, 'vssh')
+if not os.path.exists(vssh_dir):
+    os.makedirs(vssh_dir)
+
+
+
 if ssh_connection_name is not None:
-    ssh_connection_dir=os.path.join(ssh_dir, ssh_connection_name)
+    ssh_connection_dir=os.path.join(vssh_dir, ssh_connection_name)
 
 
+if command == 'list':
+    print("\n")
+    print("vssh managed ssh connections")
+    print("--------------")
+    dirs = os.listdir(vssh_dir)
+    for dir in dirs:
+        new_dir = os.path.join(vssh_dir, dir)
+        if os.path.isdir(new_dir):
+            print(dir)
+    print("\n")
+    exit()
 
-
-
+        
 if command == 'create':
     if configs["user"] is None:
         configs["user"] = "root"
@@ -47,10 +75,10 @@ if command == 'create':
 
     if ssh_connection_name is None:
         dir_name = random_names.run()
-        new_ssh_connection_dir = os.path.join(ssh_dir, dir_name)
+        new_ssh_connection_dir = os.path.join(vssh_dir, dir_name)
     else:
         ssh_connection_name = ssh_connection_name
-        new_ssh_connection_dir = os.path.join(ssh_dir, ssh_connection_name)
+        new_ssh_connection_dir = os.path.join(vssh_dir, ssh_connection_name)
 
     new_ssh_connection_dir =  new_ssh_connection_dir
 
@@ -109,7 +137,7 @@ if command == 'delete':
 
 if ssh_connection_name is None:
     ssh_connection_name = args.command
-    ssh_connection_dir=os.path.join(ssh_dir, ssh_connection_name)
+    ssh_connection_dir=os.path.join(vssh_dir, ssh_connection_name)
     # create config file
     with open(f'{ssh_connection_dir}/vpass-config.yaml', 'r') as yamlfile:
         data = yaml.load(yamlfile, Loader=yaml.SafeLoader)
@@ -126,22 +154,3 @@ if ssh_connection_name is None:
         command = f'ssh -o StrictHostKeyChecking=no -i {ssh_connection_dir}/key {user}@{host}'
         print(command)
         os.system(command)
-
-
-# def list():
-#     dirs = os.listdir(ssh_dir)
-#
-#     print("")
-#     print("All vssh managed SSH options")
-#     print("------")
-#     for dir in dirs:
-#         if os.path.isdir(os.path.join(ssh_dir, dir)) and 'vssh' in dir:
-#             print(dir)
-#     print("\n")
-#     exit()
-#
-# if command == 'delete':
-#     pass
-#
-# if command == 'go':
-#     pass
