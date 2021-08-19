@@ -11,7 +11,7 @@
 # Setup
 1. clone the repo 
 2. add bin directory to path
-3. vpass-init
+3. vssh-init
     * will build the docker image
 
 
