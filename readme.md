@@ -31,8 +31,8 @@
         vssh list
             vssh managed ssh connections
             --------------
-            do-droplet-1 : user=ubuntu host=127.0.0.1 port=22 note="test me out"
-            jolly-haibt : user=root host=137.229.3.12 port=22 note="my DO droplet"
+            jolly-haibt : user=ubuntu host=127.0.0.1 port=22 note="test me out"
+            do-droplet-1 : user=root host=137.229.3.12 port=22 note="my DO droplet"
             optimistic-wozniak : user=root host=127.0.0.1 port=22 note="local testing"
             aws-ec2-3kdf9 : user=ubuntu host=122.2.34.15 port=22 note="work ec2 instance"
 
@@ -47,12 +47,12 @@
         vssh list
             vssh managed ssh connections
             --------------
-            do-droplet-1 : user=ubuntu host=127.0.0.1 port=22 note="test me out"
+            do-droplet-1 : user=root host=137.229.3.12 port=22 note="my DO droplet"
             optimistic-wozniak : user=test_user host=1.1.1.1 port=22 note="edited note"
             aws-ec2-3kdf9 : user=ubuntu host=122.2.34.15 port=22 note="work ec2 instance"
         
 
-        vssh optimistic-wozniak
+        vssh do-droplet-1
             Last login: Mon Aug 16 23:56:04 2021 from 170.12.12.148
             root@ubuntu-s-2vcpu-4gb-amd-sfo3-01:~#
 
