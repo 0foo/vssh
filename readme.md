@@ -27,6 +27,7 @@
             --------------------
             ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCk5XpQuJc.....
 
+
         vssh list
             vssh managed ssh connections
             --------------
@@ -35,13 +36,24 @@
             optimistic-wozniak : user=root host=127.0.0.1 port=22 note="local testing"
             aws-ec2-3kdf9 : user=ubuntu host=122.2.34.15 port=22 note="work ec2 instance"
 
-        vssh delete <connection name>
-            Deleted elastic-hodgkin
 
-        vssh edit <connection> [-u user -h host -p port]
+        vssh delete jolly-haibt
+            Deleted jolly-haibt
 
-        vssh <connection>
-            Last login: Mon Aug 16 23:56:04 2021 from 174.203.65.152
+
+        vssh edit optimistic-wozniak -n "edited note" -h 1.1.1.1 -u test_user
+        
+        
+        vssh list
+            vssh managed ssh connections
+            --------------
+            do-droplet-1 : user=ubuntu host=127.0.0.1 port=22 note="test me out"
+            optimistic-wozniak : user=test_user host=1.1.1.1 port=22 note="edited note"
+            aws-ec2-3kdf9 : user=ubuntu host=122.2.34.15 port=22 note="work ec2 instance"
+        
+
+        vssh optimistic-wozniak
+            Last login: Mon Aug 16 23:56:04 2021 from 170.12.12.148
             root@ubuntu-s-2vcpu-4gb-amd-sfo3-01:~#
 
 ```
