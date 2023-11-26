@@ -3,6 +3,6 @@
 
 #! /bin/bash
 
-docker run -v /Users/$USER/.ssh:/data --rm -it mutant/vssh
+docker run -v /$HOME/.ssh:/data --rm -it mutant/vssh
 
 
