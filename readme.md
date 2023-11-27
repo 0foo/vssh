@@ -3,7 +3,7 @@
 * combine with an ssh-config manager tool in order to have minimal pain setup of ssh connections
 * this is the cryptography configuration
 	* as of this writing it's:
-		* public_exponent=65537,
+		* public_exponent=65537
         	* key_size=2048
 	* https://github.com/0foo/nick_py_utils/blob/main/nick_py_utils/cryptography.py#L6
 	* these settings are sufficient for most normal people but a `to do` is to migrate the lib code into this repo add a config file to allow this to be configured
