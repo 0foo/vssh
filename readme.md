@@ -6,3 +6,24 @@
 * python on the system path 
     * verify by running /usr/bin/env python3
 
+
+
+```
+        vssh <command> <connection> [options]
+
+        vssh create [optional connection name]
+            Created connection: optimistic-haibt
+            Key Generated: optimistic-haibt and optimistic-haibt.pub
+            SSH PUBLIC KEY
+            ----------------------------
+            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCk5XpQuJc.....
+
+        vssh list
+            do-droplet-1
+            jolly-haibt
+            optimistic-wozniak
+            aws-ec2-3kdf9
+
+        vssh delete <connection name>
+            Sucessfully deleted: elastic-hodgkin
+```
