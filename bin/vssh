@@ -53,6 +53,7 @@ def create():
         f"{cx_dir}/{new_cx}", 
         cx_keys["private"]
     )
+    os.chmod(f"{cx_dir}/{new_cx}", 0o600)
     print(f"Created connection: {new_cx}")
     print(f"Key generated: {new_cx} and {new_cx}.pub")
     print(f"Private Key location:{cx_dir}/{new_cx}")
