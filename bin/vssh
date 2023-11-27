@@ -1,63 +1,113 @@
 #!/usr/bin/env python3
-import argparse, pickle, base64, os, codecs
+import argparse, os
+import nick_py_utils.file_system as file_util
+import nick_py_utils.get_random_name as random_name
+import nick_py_utils.cryptography as ssh_key_gen
 
 
-# pars args
-parser = argparse.ArgumentParser(add_help=False)
-parser.add_argument("command", type=str, nargs='?', default=None)
-parser.add_argument("ssh_connection_name", type=str, nargs='?', default=None)
-parser.add_argument("-p", "-port", type=int, default=None)
-parser.add_argument("-u", "-user", type=str, default=None)
-parser.add_argument("-h", "-host", type=str, default=None)
-parser.add_argument("-n", "-note", type=str, default=None)
+VSSH_DIRECTORY=os.path.expanduser('~/.ssh/vssh')
+
+
+parser = argparse.ArgumentParser(description="VSSH - SSH Key Management Tool")
+subparsers = parser.add_subparsers(dest='command', required=True)
+
+# Create subparser for the 'create' command
+create_parser = subparsers.add_parser('create', help='Create a new SSH key folder')
+create_parser.add_argument('ssh_connection_name', type=str, help='Folder name to create(no whitespace)', nargs='?', default=None)
+
+# Create subparser for the 'list' command
+list_parser = subparsers.add_parser('list', help='List all SSH key folders')
+
+# Create subparser for the 'delete' command
+delete_parser = subparsers.add_parser('delete', help='Delete an SSH key folder')
+delete_parser.add_argument('ssh_connection_name', type=str, help='Folder name to delete')
+
+help_parser = subparsers.add_parser('help', help='Help menu')
 
 args = parser.parse_args()
+
+def create():
+    file_util.create_dir(VSSH_DIRECTORY)
+
+    # create directory
+    new_cx = ""
+    if args.ssh_connection_name:
+        new_cx = args.ssh_connection_name
+    else:
+        new_cx = random_name.get()
+    cx_dir = VSSH_DIRECTORY + "/" + new_cx
+    if file_util.path_exists(cx_dir):
+        print("connection exists, exiting")
+        exit()
+
+    file_util.create_dir(cx_dir)
+
+    # create ssh keys and add in the directory
+    cx_keys = ssh_key_gen.gen_ssh_key_pair()
+
+    file_util.write(
+        f"{cx_dir}/{new_cx}.pub", 
+        str(cx_keys["public"])
+    )
+    file_util.write(
+        f"{cx_dir}/{new_cx}", 
+        str(cx_keys["private"])
+    )
+    print(f"Created connection: {new_cx}")
+    print(f"Key generated: {new_cx} and {new_cx}.pub")
+    print("SSH Public key")
+    print("----------------------------")
+    print(str(cx_keys["public"]))
+
+def list():
+    dirs = file_util.get_directories(VSSH_DIRECTORY)
+    if dirs:
+        for dir in dirs:
+            print(dir)
+    else:
+        print("No connections found")
+
+def delete():
+    if args.ssh_connection_name == "all":
+        user_input = input("Deleting all connections, all you sure(y/n):")
+    if user_input == "y" or user_input == "Y":
+        file_util.delete_path(VSSH_DIRECTORY) 
+        file_util.create_dir(VSSH_DIRECTORY)
+        print(f"Deleted all connections and associated directories.")
+        exit()
+    dir_to_delete = f"{VSSH_DIRECTORY}/{args.ssh_connection_name}"
+    file_util.delete_path(dir_to_delete)
+    print(f"Sucessfully deleted: {args.ssh_connection_name}")
+
+
+if args.command == 'create':
+    create()
+elif args.command == 'list':
+    list()
+elif args.command == 'delete':
+    delete()
+
 
 if args.command == 'help' or args.command is None:
     out = """
         vssh <command> <connection> [options]
 
         vssh create [optional connection name]
-            Creating optimistic-haibt
-            Key Generated: key and key.pub
+            Created connection: optimistic-haibt
+            Key Generated: optimistic-haibt and optimistic-haibt.pub
             SSH PUBLIC KEY
-            --------------------
+            ----------------------------
             ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCk5XpQuJc.....
 
         vssh list
-            vssh managed ssh connections
-            --------------
-            do-droplet-1 : user=ubuntu host=127.0.0.1 port=22
-            jolly-haibt : user=root host=137.229.3.12 port=22
-            optimistic-wozniak : user=root host=127.0.0.1 port=22
-            aws-ec2-3kdf9 : user=ubuntu host=122.2.34.15 port=22
+            do-droplet-1
+            jolly-haibt
+            optimistic-wozniak
+            aws-ec2-3kdf9
 
         vssh delete <connection name>
-            Deleted elastic-hodgkin
+            Sucessfully deleted: elastic-hodgkin
 
-        vssh edit <connection> [-u user -h host -p port]
-
-        vssh <connection>
-            Last login: Mon Aug 16 23:56:04 2021 from 174.203.65.152
-            root@ubuntu-s-2vcpu-4gb-amd-sfo3-01:~#
-    
     """
     print(out)
     exit()
-
-# arguments
-
-out = { 
-    "command": args.command,
-    "ssh_connection_name": args.ssh_connection_name,
-    "configs" : {
-        'user':args.u,
-        'port':args.p,
-        'host':args.h,
-        'note':args.n
-    }
-}
-
-out = codecs.encode(pickle.dumps(out), "base64").decode()
-run_command = f'docker run -e VSSHDATA="{out}" -v /$HOME/.ssh:/data --rm -it mutant/vssh /bin/bash -c "python3 main.py"'
-os.system(run_command)

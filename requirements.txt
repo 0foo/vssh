@@ -1,0 +1,1 @@
+git+https://github.com/0foo/python_util.git#egg=nick_py_utils

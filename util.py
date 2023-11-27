@@ -1,4 +1,10 @@
-def run():
+
+
+
+
+
+
+def get_random_name():
     import random
     NAMES = [
         'albattani',
