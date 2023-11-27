@@ -47,17 +47,19 @@ def create():
 
     file_util.write(
         f"{cx_dir}/{new_cx}.pub", 
-        str(cx_keys["public"])
+        cx_keys["public"]
     )
     file_util.write(
         f"{cx_dir}/{new_cx}", 
-        str(cx_keys["private"])
+        cx_keys["private"]
     )
     print(f"Created connection: {new_cx}")
     print(f"Key generated: {new_cx} and {new_cx}.pub")
+    print(f"Private Key location:{cx_dir}/{new_cx}")
+    print(f"Public Key location: {cx_dir}/{new_cx}.pub")
     print("SSH Public key")
     print("----------------------------")
-    print(str(cx_keys["public"]))
+    print(cx_keys["public"])
 
 def list():
     dirs = file_util.get_directories(VSSH_DIRECTORY)
@@ -70,10 +72,11 @@ def list():
 def delete():
     if args.ssh_connection_name == "all":
         user_input = input("Deleting all connections, all you sure(y/n):")
-    if user_input == "y" or user_input == "Y":
-        file_util.delete_path(VSSH_DIRECTORY) 
-        file_util.create_dir(VSSH_DIRECTORY)
-        print(f"Deleted all connections and associated directories.")
+
+        if user_input.lower() == "y":
+            file_util.delete_path(VSSH_DIRECTORY) 
+            file_util.create_dir(VSSH_DIRECTORY)
+            print(f"Deleted all connections and associated directories.")
         exit()
     dir_to_delete = f"{VSSH_DIRECTORY}/{args.ssh_connection_name}"
     file_util.delete_path(dir_to_delete)
